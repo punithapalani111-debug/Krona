@@ -1,0 +1,36 @@
+
+name: Build A.KRONA APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Get source code
+        uses: actions/checkout@v4
+
+      - name: Install Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+
+      - name: Create Android project
+        run: |
+          cp lib/main.dart /tmp/krona_main.dart
+          flutter create --platforms=android --project-name a_krona --org com.akrona .
+          cp /tmp/krona_main.dart lib/main.dart
+
+      - name: Build APK
+        run: flutter build apk --release
+
+      - name: Save APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: A-KRONA-APK
+          path: build/app/outputs/flutter-apk/app-release.apk
